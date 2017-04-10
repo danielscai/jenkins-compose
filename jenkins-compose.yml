@@ -1,0 +1,23 @@
+---
+jobs:
+- name: auto-deber
+  artifactory: auto-release
+- name: auto-sample
+  artifactory: auto-release
+- name: bdp-crawl-dispatcher
+  artifactory: bdp-release
+- name: bdp-pdf-extractor
+  artifactory: bdp-release
+- name: bdp-report-download
+  artifactory: bdp-release
+- name: bdp-report-extraction
+  artifactory: bdp-release
+- name: bdp-report-scenarize
+  artifactory: bdp-release
+- name: bdp-spider
+  artifactory: bdp-release
+- name: rtmdd-data-meta-api
+  artifactory: dataifs-release
+- name: rtmdd-data-meta-api-front-end
+  artifactory: dataifs-release
+
