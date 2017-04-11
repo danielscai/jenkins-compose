@@ -31,10 +31,10 @@ jobs:
   release: true
   artifactory: rtmdd-release
 - name: mom-report
-  fixture: true
+  feature: true
 - name: mom-uranus
-  fixture: true
+  feature: true
 - name: mom-web
-  fixture: true
+  feature: true
 
 
