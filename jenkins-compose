@@ -27,7 +27,7 @@ def get_artifactory_config(name):
 def get_jobs_config(job_type):
     """
 
-    :param job_type: release| fixture
+    :param job_type: release| feature
     :return:
     """
     job_list = []
@@ -237,7 +237,7 @@ def set_artifactory_publisher(tree, artifactory):
 
 
 def add_script_in_pre_builder(tree):
-    """for fixture"""
+    """for feature"""
     script_element = """
     <hudson.tasks.Shell>
       <command>#!/usr/bin/env bash
@@ -296,7 +296,7 @@ def add_job(job, path, job_type):
 
     :param job:
     :param path:
-    :param job_type: release|fixture
+    :param job_type: release|feature
     :return:
     """
     suffix = '-%s' % job_type
@@ -312,7 +312,7 @@ def add_job(job, path, job_type):
     release_job_config = release_job_path + '/config.xml'
     if job_type == 'release':
         update_release_xml(job, job_config, release_job_config)
-    elif job_type == 'fixture':
+    elif job_type == 'feature':
         update_fixture_xml(job, job_config, release_job_config)
 
 
@@ -326,7 +326,7 @@ def main():
     for job in (set(ci_jobs) & set(release_jobs)):
         add_job(job, path, job_type)
 
-    job_type = 'fixture'
+    job_type = 'feature'
     release_jobs = get_jobs_config(job_type)
     for job in (set(ci_jobs) & set(release_jobs)):
         add_job(job, path, job_type)
