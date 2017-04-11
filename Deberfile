@@ -1,0 +1,12 @@
+jenkins_compose.deb:
+  name: "{{ app_name }}"
+  install_path: /usr/bin/
+
+  debian:
+    control:
+      maintainer: daniels cai <danxcai@gmail.com>
+      description: jenkins job composer
+
+  data:
+    - name: install jenkins compose
+      file: src=./jenkins-compose dest=/usr/bin/jenkins-compose mode=0755
