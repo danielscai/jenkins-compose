@@ -300,7 +300,7 @@ def add_job(job, path, job_type):
     :return:
     """
     suffix = '-%s' % job_type
-    print "process release job ", job
+    print "process %s job " % job_type, job
 
     job_path = path + "/" + job
     job_config = job_path + '/config.xml'
