@@ -26,10 +26,10 @@ jobs:
   artifactory: bdp-release
 - name: rtmdd-data-meta-api
   release: true
-  artifactory: dataifs-release
+  artifactory: rtmdd-release
 - name: rtmdd-data-meta-api-front-end
   release: true
-  artifactory: dataifs-release
+  artifactory: rtmdd-release
 - name: mom-report
   fixture: true
 - name: mom-uranus
