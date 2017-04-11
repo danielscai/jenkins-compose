@@ -1,15 +1,11 @@
 #!/usr/bin/env python
 # #coding:utf8
 
-from subprocess import Popen, PIPE
-import yaml
-import xml.etree.ElementTree as ET
-import re
-import os
-import sys
-import pprint
 import StringIO
-from datetime import date
+import os
+import xml.etree.ElementTree as ET
+
+import yaml
 
 
 def parse_config():
@@ -19,13 +15,15 @@ def parse_config():
         return config
     return None
 
+
 def get_artifactory_config(name):
     config = parse_config()
     jobs = config['jobs']
     for job in jobs:
         if job['name'] == name:
             return job['artifactory']
-    return None 
+    return None
+
 
 def get_job_list():
     job_list = []
@@ -34,8 +32,7 @@ def get_job_list():
     for job in jobs:
         job_list.append(job['name'])
     return job_list
-        
-    
+
 
 def remove_publisher(conf_file):
     tree = ET.parse(conf_file)
@@ -50,8 +47,9 @@ def remove_publisher(conf_file):
     except:
         print("%s has no publishers." % conf_file)
 
+
 def xml_string_to_element(xml_string):
-    xml_file= StringIO.StringIO(xml_string)
+    xml_file = StringIO.StringIO(xml_string)
     tree = ET.parse(xml_file)
     element = tree.getroot()
     return element
@@ -59,10 +57,11 @@ def xml_string_to_element(xml_string):
 
 def find_parameter(tree):
     return tree.find("./properties/hudson.model.ParametersDefinitionProperty")
-    
+
 
 def find_properties(tree):
     return tree.find("./properties")
+
 
 def add_parameter(tree):
     parameter_definition_xml = """
@@ -76,42 +75,47 @@ def add_parameter(tree):
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
 """
-    parameter_definition_xml_file= StringIO.StringIO(parameter_definition_xml)
+    parameter_definition_xml_file = StringIO.StringIO(parameter_definition_xml)
     parameter_definition_tree = ET.parse(parameter_definition_xml_file)
     parameter_definition_element = parameter_definition_tree.getroot()
-    #print parameter_definition_tree 
+    # print parameter_definition_tree
 
-    parameterProperty=find_parameter(tree)
+    parameterProperty = find_parameter(tree)
     properties = find_properties(tree)
 
-    for child in properties: 
+    for child in properties:
         if child.tag == 'hudson.model.ParametersDefinitionPropert':
             properties.remove(child)
     properties.append(parameter_definition_element)
 
 
 def print_element(element):
-    print "print element " , element
+    print "print element ", element
     for child in element:
         print child.tag, child.attrib, child.text
+
 
 def find_refspec(tree):
     return tree.find("./scm/userRemoteConfigs/hudson.plugins.git.UserRemoteConfig/refspec")
 
+
 def find_urc(tree):
     return tree.find("./scm/userRemoteConfigs/hudson.plugins.git.UserRemoteConfig")
 
+
 def set_refspec(tree):
     urc = find_urc(tree)
-    refspec=find_refspec(tree)
+    refspec = find_refspec(tree)
     if refspec is None:
         urc.append(ET.Element("refspec"))
-    
-    refspec=find_refspec(tree)
+
+    refspec = find_refspec(tree)
     refspec.text = "+refs/heads/*:refs/remotes/origin/* +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*"
+
 
 def find_branches(tree):
     return tree.find("./scm/branches/hudson.plugins.git.BranchSpec")
+
 
 def set_branches(tree):
     branch = find_branches(tree)
@@ -119,8 +123,10 @@ def set_branches(tree):
         if child.tag == "name":
             child.text = 'origin/${gitlabSourceBranch}'
 
+
 def find_gitlab_trigger(tree):
     return tree.find("./triggers/com.dabsquared.gitlabjenkins.GitLabPushTrigger")
+
 
 def set_gitlab_triggers(tree):
     gitlab_trigger = find_gitlab_trigger(tree)
@@ -136,8 +142,10 @@ def set_gitlab_triggers(tree):
 def find_artifactory_publisher(tree):
     return tree.find("./publishers/org.jfrog.hudson.ArtifactoryRedeployPublisher")
 
+
 def find_publisher(tree):
     return tree.find("./publishers")
+
 
 def remove_artifactory_publisher(tree):
     publisher = find_publisher(tree)
@@ -145,8 +153,9 @@ def remove_artifactory_publisher(tree):
         if child.tag == 'org.jfrog.hudson.ArtifactoryRedeployPublisher':
             publisher.remove(child)
 
+
 def set_artifactory_publisher(tree, artifactory):
-    artifactory_xml_tmpl= """<org.jfrog.hudson.ArtifactoryRedeployPublisher plugin="artifactory@2.5.0">
+    artifactory_xml_tmpl = """<org.jfrog.hudson.ArtifactoryRedeployPublisher plugin="artifactory@2.5.0">
       <evenIfUnstable>false</evenIfUnstable>
       <details>
         <artifactoryName>datayes-artifactory</artifactoryName>
@@ -213,14 +222,14 @@ def set_artifactory_publisher(tree, artifactory):
       <autoDiscardStaleComponentRequests>true</autoDiscardStaleComponentRequests>
     </org.jfrog.hudson.ArtifactoryRedeployPublisher>
 """
-    artifactory_xml = artifactory_xml_tmpl.format(artifactory_name = artifactory)
+    artifactory_xml = artifactory_xml_tmpl.format(artifactory_name=artifactory)
     artifactory_publisher = find_artifactory_publisher(tree)
     remove_artifactory_publisher(tree)
     artifactory_element = xml_string_to_element(artifactory_xml)
 
     publisher = find_publisher(tree)
     publisher.append(artifactory_element)
-    
+
 
 def update_xml(name, conf_file, target_file):
     """ update xml """
@@ -229,7 +238,7 @@ def update_xml(name, conf_file, target_file):
     set_branches(tree)
     set_gitlab_triggers(tree)
     add_parameter(tree)
-    
+
     artifactory = get_artifactory_config(name)
     set_artifactory_publisher(tree, artifactory)
 
@@ -241,15 +250,17 @@ def update_xml(name, conf_file, target_file):
 def find_jobs(path):
     return os.listdir(path)
 
+
 def find_ci_jobs(jobs):
     ci_jobs = []
     for job in jobs:
-        if not job.endswith('-release')\
-            and not job.startswith('snapshot') \
-            and not job.startswith('pms'):
+        if not job.endswith('-release') \
+                and not job.startswith('snapshot') \
+                and not job.startswith('pms'):
             ci_jobs.append(job)
 
     return ci_jobs
+
 
 def main():
     path = '/datayes/automation-infrastructure/ci/jenkins/data-prod/jobs'
@@ -257,7 +268,7 @@ def main():
     jobs = find_jobs(path)
     ci_jobs = find_ci_jobs(jobs)
     job_list = get_job_list()
-    for job in ( set(ci_jobs) & set(job_list) ):
+    for job in (set(ci_jobs) & set(job_list)):
         job_path = path + "/" + job
         job_config = job_path + '/config.xml'
 
@@ -268,7 +279,7 @@ def main():
             os.mkdir(release_job_path)
 
         release_job_config = release_job_path + '/config.xml'
-        release_xml = update_xml(job , job_config, release_job_config)
+        release_xml = update_xml(job, job_config, release_job_config)
 
 
 if __name__ == "__main__":
