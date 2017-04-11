@@ -13,7 +13,6 @@ def parse_config():
     with open(yaml_config) as f:
         config = yaml.load(f)
         return config
-    return None
 
 
 def get_artifactory_config(name):
@@ -25,12 +24,18 @@ def get_artifactory_config(name):
     return None
 
 
-def get_job_list():
+def get_jobs_config(job_type):
+    """
+
+    :param job_type: release| fixture
+    :return:
+    """
     job_list = []
     config = parse_config()
     jobs = config['jobs']
     for job in jobs:
-        job_list.append(job['name'])
+        if job.get(job_type, False):
+            job_list.append(job['name'])
     return job_list
 
 
@@ -231,7 +236,23 @@ def set_artifactory_publisher(tree, artifactory):
     publisher.append(artifactory_element)
 
 
-def update_xml(name, conf_file, target_file):
+def add_script_in_pre_builder(tree):
+    """for fixture"""
+    script_element = """
+    <hudson.tasks.Shell>
+      <command>#!/usr/bin/env bash
+        pom=&quot;/home/jenkins/workspace/${JOB_NAME}/pom.xml&quot;
+
+        sed -i &quot;s/{BUILD_NUMBER}/{BUILD_NUMBER}-${gitlabSourceBranch}/g&quot; $pom</command>
+    </hudson.tasks.Shell>
+    """
+
+    root_element = tree.find("./prebuilders")
+    shell_element = xml_string_to_element(script_element)
+    root_element.append(shell_element)
+
+
+def update_release_xml(name, conf_file, target_file):
     """ update xml """
     tree = ET.parse(conf_file)
     set_refspec(tree)
@@ -242,8 +263,16 @@ def update_xml(name, conf_file, target_file):
     artifactory = get_artifactory_config(name)
     set_artifactory_publisher(tree, artifactory)
 
-    exit
+    tree.write(target_file)
 
+
+def update_fixture_xml(name, conf_file, target_file):
+    """ update xml """
+    tree = ET.parse(conf_file)
+    set_refspec(tree)
+    set_branches(tree)
+    add_parameter(tree)
+    add_script_in_pre_builder(tree)
     tree.write(target_file)
 
 
@@ -255,31 +284,52 @@ def find_ci_jobs(jobs):
     ci_jobs = []
     for job in jobs:
         if not job.endswith('-release') \
-                and not job.startswith('snapshot') \
+                and not job.endswith('-feature') \
                 and not job.startswith('pms'):
             ci_jobs.append(job)
 
     return ci_jobs
 
 
+def add_job(job, path, job_type):
+    """
+
+    :param job:
+    :param path:
+    :param job_type: release|fixture
+    :return:
+    """
+    suffix = '-%s' % job_type
+    print "process release job ", job
+
+    job_path = path + "/" + job
+    job_config = job_path + '/config.xml'
+    release_job_name = job + suffix
+    release_job_path = path + "/" + release_job_name
+    if not os.path.exists(release_job_path):
+        os.mkdir(release_job_path)
+
+    release_job_config = release_job_path + '/config.xml'
+    if job_type == 'release':
+        update_release_xml(job, job_config, release_job_config)
+    elif job_type == 'fixture':
+        update_fixture_xml(job, job_config, release_job_config)
+
+
 def main():
     path = '/datayes/automation-infrastructure/ci/jenkins/data-prod/jobs'
-    suffix = '-release'
+
     jobs = find_jobs(path)
     ci_jobs = find_ci_jobs(jobs)
-    job_list = get_job_list()
-    for job in (set(ci_jobs) & set(job_list)):
-        job_path = path + "/" + job
-        job_config = job_path + '/config.xml'
+    job_type = 'release'
+    release_jobs = get_jobs_config(job_type)
+    for job in (set(ci_jobs) & set(release_jobs)):
+        add_job(job, path, job_type)
 
-        print "process job ", job
-        release_job_name = job + suffix
-        release_job_path = path + "/" + release_job_name
-        if not os.path.exists(release_job_path):
-            os.mkdir(release_job_path)
-
-        release_job_config = release_job_path + '/config.xml'
-        release_xml = update_xml(job, job_config, release_job_config)
+    job_type = 'fixture'
+    release_jobs = get_jobs_config(job_type)
+    for job in (set(ci_jobs) & set(release_jobs)):
+        add_job(job, path, job_type)
 
 
 if __name__ == "__main__":

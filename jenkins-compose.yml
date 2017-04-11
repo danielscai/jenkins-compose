@@ -1,23 +1,40 @@
 ---
 jobs:
 - name: auto-deber
+  release: true
   artifactory: auto-release
 - name: auto-sample
+  release: true
   artifactory: auto-release
 - name: bdp-crawl-dispatcher
+  release: true
   artifactory: bdp-release
 - name: bdp-pdf-extractor
+  release: true
   artifactory: bdp-release
 - name: bdp-report-download
+  release: true
   artifactory: bdp-release
 - name: bdp-report-extraction
+  release: true
   artifactory: bdp-release
 - name: bdp-report-scenarize
+  release: true
   artifactory: bdp-release
 - name: bdp-spider
+  release: true
   artifactory: bdp-release
 - name: rtmdd-data-meta-api
+  release: true
   artifactory: dataifs-release
 - name: rtmdd-data-meta-api-front-end
+  release: true
   artifactory: dataifs-release
+- name: mom-report
+  fixture: true
+- name: mom-uranus
+  fixture: true
+- name: mom-web
+  fixture: true
+
 
