@@ -254,7 +254,7 @@ sed -i &quot;s/{BUILD_NUMBER}/{BUILD_NUMBER}-${gitlabSourceBranch}/g&quot; $pom<
 
 def add_remote_token(tree):
     token_str = "<authToken>mommp2017</authToken>"
-    root_element = tree.find("./maven2-moduleset")
+    root_element = tree.getroot()
     token_ele = xml_string_to_element(token_str)
     root_element.append(token_ele)
 
