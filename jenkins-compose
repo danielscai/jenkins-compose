@@ -240,16 +240,23 @@ def add_script_in_pre_builder(tree):
     """for feature"""
     script_element = """
     <hudson.tasks.Shell>
-      <command>#!/usr/bin/env bash
-        pom=&quot;/home/jenkins/workspace/${JOB_NAME}/pom.xml&quot;
-
-        sed -i &quot;s/{BUILD_NUMBER}/{BUILD_NUMBER}-${gitlabSourceBranch}/g&quot; $pom</command>
+      <command>
+#!/usr/bin/env bash
+pom=&quot;/home/jenkins/workspace/${JOB_NAME}/pom.xml&quot;
+sed -i &quot;s/{BUILD_NUMBER}/{BUILD_NUMBER}-${gitlabSourceBranch}/g&quot; $pom</command>
     </hudson.tasks.Shell>
     """
 
     root_element = tree.find("./prebuilders")
     shell_element = xml_string_to_element(script_element)
     root_element.append(shell_element)
+
+
+def add_remote_token(tree):
+    token_str = "<authToken>mommp2017</authToken>"
+    root_element = tree.find("./maven2-moduleset")
+    token_ele = xml_string_to_element(token_str)
+    root_element.append(token_ele)
 
 
 def update_release_xml(name, conf_file, target_file):
@@ -266,12 +273,14 @@ def update_release_xml(name, conf_file, target_file):
     tree.write(target_file)
 
 
-def update_fixture_xml(name, conf_file, target_file):
+def update_feature_xml(name, conf_file, target_file):
     """ update xml """
     tree = ET.parse(conf_file)
     set_refspec(tree)
     set_branches(tree)
     add_parameter(tree)
+    remove_artifactory_publisher(tree)
+    add_remote_token(tree)
     add_script_in_pre_builder(tree)
     tree.write(target_file)
 
@@ -313,7 +322,7 @@ def add_job(job, path, job_type):
     if job_type == 'release':
         update_release_xml(job, job_config, release_job_config)
     elif job_type == 'feature':
-        update_fixture_xml(job, job_config, release_job_config)
+        update_feature_xml(job, job_config, release_job_config)
 
 
 def main():
