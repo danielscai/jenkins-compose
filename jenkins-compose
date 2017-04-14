@@ -243,7 +243,8 @@ def add_script_in_pre_builder(tree):
       <command>
 #!/usr/bin/env bash
 pom=&quot;/home/jenkins/workspace/${JOB_NAME}/pom.xml&quot;
-sed -i &quot;s/{BUILD_NUMBER}/{BUILD_NUMBER}-${gitlabSourceBranch}/g&quot; $pom</command>
+version=`expr ${gitlabSourceBranch} : '\([A-Za-z]*-[0-9]*\)'`
+sed -i &quot;s/{BUILD_NUMBER}/{BUILD_NUMBER}-${version}/g&quot; $pom</command>
     </hudson.tasks.Shell>
     """
 
