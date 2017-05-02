@@ -3,6 +3,9 @@ jobs:
 - name: auto-deber
   release: true
   artifactory: auto-release
+- name: ponyes
+  release: true
+  artifactory: auto-release
 - name: auto-sample
   release: true
   artifactory: auto-release
@@ -38,5 +41,12 @@ jobs:
   feature: true
 - name: rs-nest
   feature: true
+- name: bdp-datayesapi-twist
+  release: true
+  artifactory: bdp-release
+- name: datayes-fe-boilerplate
+  release: true
+  feature: true
+  artifactory: tools-release
 
 

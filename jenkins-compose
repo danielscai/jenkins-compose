@@ -336,6 +336,7 @@ def add_job(job, path, job_type):
 
 def main():
     path = '/datayes/automation-infrastructure/ci/jenkins/data-prod/jobs'
+    path = '/root/workspace/automation-infrastructure/ci/jenkins/data-prod/jobs'
 
     jobs = find_jobs(path)
     ci_jobs = find_ci_jobs(jobs)
