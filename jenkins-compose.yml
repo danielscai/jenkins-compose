@@ -36,5 +36,7 @@ jobs:
   feature: true
 - name: mom-web
   feature: true
+- name: rs-nest
+  feature: true
 
 

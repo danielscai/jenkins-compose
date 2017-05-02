@@ -260,6 +260,14 @@ def add_remote_token(tree):
     root_element.append(token_ele)
 
 
+def update_ci_xml(conf_file):
+    """ update xml """
+    tree = ET.parse(conf_file)
+    remove_artifactory_publisher(tree)
+
+    tree.write(conf_file)
+
+
 def update_release_xml(name, conf_file, target_file):
     """ update xml """
     tree = ET.parse(conf_file)
@@ -331,6 +339,12 @@ def main():
 
     jobs = find_jobs(path)
     ci_jobs = find_ci_jobs(jobs)
+
+    # clear ci jobs
+    for job in ci_jobs:
+        job_config = os.path.join(path, job, "config.xml")
+        update_ci_xml(job_config)
+
     job_type = 'release'
     release_jobs = get_jobs_config(job_type)
     for job in (set(ci_jobs) & set(release_jobs)):
