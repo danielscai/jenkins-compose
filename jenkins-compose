@@ -27,14 +27,16 @@ def get_artifactory_config(name):
 def get_jobs_config(job_type):
     """
 
-    :param job_type: release| feature
+    :param job_type: release| feature| ci
     :return:
     """
     job_list = []
     config = parse_config()
     jobs = config['jobs']
     for job in jobs:
-        if job.get(job_type, False):
+        if job_type == 'ci':
+            job_list.append(job['name'])
+        elif job.get(job_type, False):
             job_list.append(job['name'])
     return job_list
 
@@ -294,11 +296,8 @@ def update_feature_xml(name, conf_file, target_file):
     tree.write(target_file)
 
 
-def find_jobs(path):
-    return os.listdir(path)
-
-
-def find_ci_jobs(jobs):
+def get_all_jobs(path):
+    jobs = os.listdir(path)
     ci_jobs = []
     for job in jobs:
         if not job.endswith('-release') \
@@ -336,24 +335,25 @@ def add_job(job, path, job_type):
 
 def main():
     path = '/datayes/automation-infrastructure/ci/jenkins/data-prod/jobs'
-    path = '/root/workspace/automation-infrastructure/ci/jenkins/data-prod/jobs'
+    # path = '/root/workspace/automation-infrastructure/ci/jenkins/data-prod/jobs'
 
-    jobs = find_jobs(path)
-    ci_jobs = find_ci_jobs(jobs)
+    all_jobs = get_all_jobs(path)
 
     # clear ci jobs
-    for job in ci_jobs:
+    job_type = 'ci'
+    config_jobs = get_jobs_config(job_type)
+    for job in (set(all_jobs) & set(config_jobs)):
         job_config = os.path.join(path, job, "config.xml")
         update_ci_xml(job_config)
 
     job_type = 'release'
-    release_jobs = get_jobs_config(job_type)
-    for job in (set(ci_jobs) & set(release_jobs)):
+    config_jobs = get_jobs_config(job_type)
+    for job in (set(all_jobs) & set(config_jobs)):
         add_job(job, path, job_type)
 
     job_type = 'feature'
-    release_jobs = get_jobs_config(job_type)
-    for job in (set(ci_jobs) & set(release_jobs)):
+    config_jobs = get_jobs_config(job_type)
+    for job in (set(all_jobs) & set(config_jobs)):
         add_job(job, path, job_type)
 
 
