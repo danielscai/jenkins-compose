@@ -48,5 +48,27 @@ jobs:
   release: true
   feature: true
   artifactory: tools-release
-
-
+- name: puma-announcement-pdf2html-poklonskaya
+  artifactory: gaea-release
+- name: qnty-hs300
+  artifactory: quantegy-release
+- name: mof-guzhibiao
+- name: mom-uranus-parallel
+- name: mof-operation-events
+- name: auto-sql
+- name: qnty-trade-evaluator
+- name: qnty-signal
+- name: knowledgegraph-mr-offline
+- name: hawkeye-web
+- name: hawkeye
+- name: rs-log
+- name: rs-mobile
+- name: rs-web
+- name: mom-report-cron
+- name: knowledgegraph-service
+- name: dataapi-monitor
+- name: dataifs-data-watcher
+- name: icbc-mom
+- name: biz-icbc-mom
+- name: datayes-wechat-message
+- name: mom-uranus-infrastructure
