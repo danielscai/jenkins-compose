@@ -151,7 +151,8 @@ def find_artifactory_publisher(tree):
 
 
 def find_publisher(tree):
-    return tree.find("./publishers")
+    ele = tree.find("./publishers")
+    return ele if ele else []
 
 
 def remove_artifactory_publisher(tree):
@@ -343,6 +344,7 @@ def main():
     job_type = 'ci'
     config_jobs = get_jobs_config(job_type)
     for job in (set(all_jobs) & set(config_jobs)):
+        print "process ci job", job
         job_config = os.path.join(path, job, "config.xml")
         update_ci_xml(job_config)
 
